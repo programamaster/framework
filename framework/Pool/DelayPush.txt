@@ -1,0 +1,20 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+///<summary>
+///创建人:赵晨晖
+///功能说明:测试移出对象池，延时1s删除
+///</summary>
+public class DelayPush : MonoBehaviour
+{
+
+    void OnEnable()
+    {
+        Invoke(nameof(Push), 1);
+    }
+
+    void Push()
+    {
+        ObjectPool.GetInstance().PushObject(name, gameObject);
+    }
+}
