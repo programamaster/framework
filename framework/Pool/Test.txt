@@ -1,0 +1,38 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+///<summary>
+///创建人:赵晨晖
+///功能说明:测试对象池
+///</summary>
+public class Test : MonoBehaviour
+{
+
+    void Start()
+    {
+
+    }
+
+    void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            ObjectPool.GetInstance().GetObject("Cube");
+        }
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            ObjectPool.GetInstance().GetObject("Sphere");
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            Test123();
+        }
+    }
+
+    public void Test123()
+    {
+        ObjectPool.GetInstance().ClearPool();
+    }
+}

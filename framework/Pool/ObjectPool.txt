@@ -1,0 +1,116 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+///<summary>
+///创建人:赵晨晖
+///功能说明:对象池的简单实现,(局限性比较大)
+///</summary>
+public class ObjectPool : BaseManager<ObjectPool>
+{
+    //对象池字典
+    public Dictionary<string, PoolData> poolDic = new Dictionary<string, PoolData>();
+
+    //对象池根节点
+    private GameObject poolObj;
+
+    /// <summary>
+    /// 从对象池获取对象
+    /// </summary>
+    /// <param name="name">预制体的名字</param>
+    /// <returns>从池中取出需要的对象</returns>
+    public GameObject GetObject(string name)
+    {
+        GameObject obj = null;
+        //池中有这个对象
+        if (poolDic.ContainsKey(name) && poolDic[name].poolQueue.Count > 0)
+        {
+            obj = poolDic[name].GetObj();
+        }
+        else
+        {
+            //如果池中没有这个对象，实例化一个该对象,(路径是需要自己注意的地方)
+            obj = GameObject.Instantiate(Resources.Load<GameObject>(name));
+            obj.name = name;
+        }
+        return obj;
+    }
+
+    /// <summary>
+    /// 把不用的对象放入对象池
+    /// </summary>
+    /// <param name="name">预制体的名字</param>
+    /// <param name="obj">压入池中的对象</param>
+    public void PushObject(string name, GameObject obj)
+    {
+        if (poolObj == null)
+            poolObj = new GameObject("Pool");
+
+        //判断是否有对应的池子
+        if (poolDic.ContainsKey(name))
+        {
+            poolDic[name].PushObj(obj);
+        }
+        else
+        {
+            poolDic.Add(name, new PoolData(obj, poolObj));
+        }
+    }
+
+    /// <summary>
+    /// 清除对象池(主要用于场景切换)
+    /// </summary>
+    public void ClearPool()
+    {
+        poolDic.Clear();
+        poolObj = null;
+    }
+}
+
+/// <summary>
+/// 每一种类型的对象对应的池子
+/// </summary>
+public class PoolData
+{
+    //每种对象对应的父节点
+    public GameObject fatherObj;
+    //对象的容器
+    public Queue<GameObject> poolQueue;
+
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    /// <param name="obj">压入池子的对象</param>
+    /// <param name="poolObj">最根节点的对象(Pool)</param>
+    public PoolData(GameObject obj, GameObject poolObj)
+    {
+        //为每种对象创建专属的父对象，再把父对象作为Pool的子物体
+        fatherObj = new GameObject(obj.name + "Pool");
+        fatherObj.transform.parent = poolObj.transform;
+        poolQueue = new Queue<GameObject>();
+        PushObj(obj);
+    }
+
+    /// <summary>
+    /// 往队列压入
+    /// </summary>
+    /// <param name="obj">入池的对象</param>
+    public void PushObj(GameObject obj)
+    {
+        obj.SetActive(false);
+        poolQueue.Enqueue(obj);
+        obj.transform.parent = fatherObj.transform;
+    }
+
+
+    /// <summary>
+    /// 从队列里取
+    /// </summary>
+    /// <returns></returns>
+    public GameObject GetObj()
+    {
+        GameObject obj = poolQueue.Dequeue();
+        obj.SetActive(true);
+        obj.transform.parent = null;
+        return obj;
+    }
+}
