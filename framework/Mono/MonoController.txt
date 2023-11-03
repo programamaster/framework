@@ -1,0 +1,49 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Events;
+///<summary>
+///创建人:赵晨晖
+///功能说明:为了实现不继承Mono的脚本 可以开启携程，可以使用Update函数帧更新的方法
+///如果一个项目里多个脚本的Update过多的话，可能会因为Unity的反射机制造成性能问题，可以通过MonoController来把所有的的Update放在一个函数执行
+///</summary>
+public class MonoController : MonoBehaviour
+{
+    private event UnityAction updateEvent;
+
+    void Start()
+    {
+        DontDestroyOnLoad(this.gameObject);
+    }
+
+    void Update()
+    {
+        updateEvent?.Invoke();
+    }
+
+    /// <summary>
+    /// 给外部提供的 添加帧更新事件的函数
+    /// </summary>
+    /// <param name="action"></param>
+    public void AddUpdateListen(UnityAction action)
+    {
+        updateEvent += action;
+    }
+
+    /// <summary>
+    /// 给外部提供的 移除帧更新事件的函数
+    /// </summary>
+    /// <param name="action"></param>
+    public void RemoveUpdateListen(UnityAction action)
+    {
+        updateEvent -= action;
+    }
+
+    /// <summary>
+    /// 清空所有的帧更新事件
+    /// </summary>
+    public void ClearAllListen()
+    {
+        updateEvent = null;
+    }
+}
