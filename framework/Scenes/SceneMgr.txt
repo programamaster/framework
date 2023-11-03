@@ -1,0 +1,57 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.SceneManagement;
+///<summary>
+///创建人:赵晨晖
+///功能说明:场景切换模块(不要忘记在unity加场景哦！)
+///</summary>
+public class SceneMgr : BaseManager<SceneMgr>
+{
+    /// <summary>
+    /// 切换场景 同步
+    /// </summary>
+    /// <param name="sceneName">场景的名字或路径</param>
+    public void LoadScene(string sceneName, UnityAction action)
+    {
+        //场景同步加载
+        SceneManager.LoadScene(sceneName);
+        //加载完成过后 才会执行事件
+        action?.Invoke();
+    }
+
+    /// <summary>
+    /// 提供给外部的 异步加载的接口方法
+    /// </summary>
+    /// <param name="sceneName">场景的名字或者路径</param>
+    /// <param name="action"></param>
+    public void LoadSceneAsync(string sceneName, UnityAction action)
+    {
+        MonoManager.GetInstance().StartCoroutine(CoroutineLoadSceneAsync(sceneName,action));
+    }
+
+    /// <summary>
+    /// 协程异步加载场景
+    /// </summary>
+    /// <param name="sceneName">场景的名字或者路径</param>
+    /// <param name="action"></param>
+    /// <returns></returns>
+    private IEnumerator CoroutineLoadSceneAsync(string sceneName,UnityAction action)
+    {
+        AsyncOperation ao = SceneManager.LoadSceneAsync(sceneName);
+        //可以得到场景加载的进度
+        while (!ao.isDone)
+        {
+            //事件中心向外分发进度情况 外面想用就更新
+            EventCenter.GetInstance().EventTrigger("进度条更新", ao.progress);
+            //这里去更新进度条
+            yield return ao.progress;
+        }
+        yield return ao;
+        //加载完成后 才去执行事件
+        action?.Invoke();
+    }
+
+
+}
