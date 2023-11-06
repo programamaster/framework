@@ -29,7 +29,8 @@ public class ObjectPool : BaseManager<ObjectPool>
         else
         {
             //如果池中没有这个对象，实例化一个该对象,(路径是需要自己注意的地方)
-            obj = GameObject.Instantiate(Resources.Load<GameObject>(name));
+            //obj = GameObject.Instantiate(Resources.Load<GameObject>(name)); 未封装版本
+            ResMgr.GetInstance().Load<GameObject>("name");
             obj.name = name;
         }
         return obj;
