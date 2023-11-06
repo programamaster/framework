@@ -1,0 +1,57 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Events;
+///<summary>
+///创建人:赵晨晖
+///功能说明:资源加载模块(同步加载资源和异步加载资源)
+///</summary>
+public class ResMgr : BaseManager<ResMgr>
+{
+    /// <summary>
+    /// 同步加载资源
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public T Load<T>(string name) where T : Object
+    {
+        T res = Resources.Load<T>(name);
+        //如果对象是一个GameObject类型的 我把他实例化后 再返回出去 外部 直接使用即可
+        if (res is GameObject)
+            return GameObject.Instantiate(res);
+        else//TextAsset AudioClip
+            return res;
+    }
+
+    /// <summary>
+    /// 异步加载资源
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="name">资源路径</param>
+    /// <param name="callback">加载资源后对此对象的操作</param>
+    public void LoadAsync<T>(string name, UnityAction<T> callback) where T : Object
+    {
+        //开启异步加载的协程
+        MonoManager.GetInstance().StartCoroutine(CoroutineLoadAsync(name, callback));
+    }
+
+
+    /// <summary>
+    /// 真正的协程函数 用于开启异步加载对应的资源
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="name">资源路径</param>
+    /// <param name="callback">加载资源后对此对象的操作</param>
+    /// <returns></returns>
+    private IEnumerator CoroutineLoadAsync<T>(string name, UnityAction<T> callback) where T : Object
+    {
+        ResourceRequest request = Resources.LoadAsync<T>(name);
+        yield return request;
+
+        if (request.asset is GameObject)
+            callback(GameObject.Instantiate(request.asset) as T);
+        else
+            callback(request.asset as T);
+    }
+}
