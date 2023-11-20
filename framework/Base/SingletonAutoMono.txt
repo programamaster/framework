@@ -13,7 +13,7 @@ public class SingletonAutoMono<T> : MonoBehaviour where T : MonoBehaviour
     {
         if (instance == null)
         {
-            GameObject obj = new GameObject
+            GameObject obj = new()
             {
                 name = typeof(T).ToString()
             };

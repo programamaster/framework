@@ -9,7 +9,7 @@ public class BaseManager<T> where T : new()
 {
     private static T instance;
     //锁
-    private static readonly object locker = new object();
+    private static readonly object locker = new();
 
     public static T GetInstance()
     {

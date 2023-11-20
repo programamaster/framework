@@ -28,6 +28,8 @@ public class SingletonMono<T> : MonoBehaviour where T : MonoBehaviour
         else
         {
             instance = this as T;
+            //给这个单列对象起一个名字吧
+            gameObject.name = typeof(T).ToString();
         }
     }
 }
