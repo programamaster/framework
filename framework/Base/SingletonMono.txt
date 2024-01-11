@@ -1,11 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 ///<summary>
 ///创建人:赵晨晖
 ///功能说明:单例模式基类模块(基于Mono)，需要我们自己保证它的唯一性(有点不利于协同开发)
 ///</summary>
+[DisallowMultipleComponent]
 public class SingletonMono<T> : MonoBehaviour where T : MonoBehaviour
 {
     private static T instance;
@@ -23,7 +22,7 @@ public class SingletonMono<T> : MonoBehaviour where T : MonoBehaviour
         //当 instance 不为空时销毁游戏物体是为了保证一个继承于此单例基类的脚本无法挂在多个游戏物体上，保证当前场景只有唯一的这个脚本。不过我们在手动添加脚本时也要注意不能将一个单例模块加到多个物体上，否则可能会销毁我们原本不想销毁的物体。
         if (instance != null)
         {
-            Destroy(gameObject);
+            Destroy(this);
         }
         else
         {
